@@ -44,6 +44,11 @@ var Space = {
 		
 		//subscribe to stateUpdates
 		$.Dispatch('stateUpdate').subscribe(Space.handleStateUpdates);
+		
+		//crash the ship when player switches tabs in the browser
+		$(window).blur(function() {
+			Space.crash();
+		});
 	},
 	
 	options: {}, // Nothing for now
