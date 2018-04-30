@@ -11,13 +11,16 @@ var Events = {
 	_LEAVE_COOLDOWN: 1,
 	STUN_DURATION: 4000,
 	BLINK_INTERVAL: false,
+	PAUSE: false,
 
+	
 	init: function(options) {
 		this.options = $.extend(
 			this.options,
 			options
 		);
-
+		PAUSE = false;
+		
 		// Build the Event Pool
 		Events.EventPool = [].concat(
 			Events.Global,
@@ -42,6 +45,7 @@ var Events = {
 	activeScene: null,
 
 	loadScene: function(name) {
+		PAUSE = false;
 		Engine.log('loading scene: ' + name);
 		Events.activeScene = name;
 		var scene = Events.activeEvent().scenes[name];
@@ -127,7 +131,15 @@ var Events = {
 			Events.createAttackButton('fists').prependTo(attackBtns);
 		}
 		$('<div>').addClass('clear').appendTo(attackBtns);
-
+		
+		var pause = new Button.Button({
+				id: 'pause',
+				text: 'pause',
+				cooldown: Events._PAUSE_COOLDOWN,
+				click: Events.togglePause
+			}).appendTo(attackBtns);
+		$('<div>').addClass('clear').appendTo(attackBtns);
+		
 		var healBtns = $('<div>').appendTo(btns).attr('id','healButtons');
 		Events.createEatMeatButton().appendTo(healBtns);
 		if((Path.outfit['medicine'] || 0) !== 0) {
@@ -144,6 +156,9 @@ var Events = {
 		if(!btn) {
 			btn = $('#pause');
 		}
+		
+		PAUSE = true;
+				
 		var event = btn.closest('#event');
 		var string, log;
 		if(state == 'set') {
@@ -169,6 +184,9 @@ var Events = {
 		if(!btn) {
 			btn = $('#pause');
 		}
+		
+		PAUSE = false;
+				
 		var event = btn.closest('#event');
 		var log, time, target;
 		if(state == 'auto' && Events.paused != 'auto') {
@@ -339,15 +357,20 @@ var Events = {
 	},
 
 	eatMeat: function(btn) {
-		Events.doHeal('cured meat', World.meatHeal(), btn);
+		if(PAUSE == false){
+			Events.doHeal('cured meat', World.meatHeal(), btn);
+		}
 	},
 
 	useMeds: function(btn) {
-		Events.doHeal('medicine', World.medsHeal(), btn);
+		
+		if(PAUSE == false){
+			Events.doHeal('medicine', World.medsHeal(), btn);
+		}
 	},
 
 	useWeapon: function(btn) {
-		if(Events.activeEvent()) {
+		if(Events.activeEvent() && (PAUSE == false)) {
 			var weaponName = btn.attr('id').substring(7).replace('-', ' ');
 			var weapon = World.Weapons[weaponName];
 			if(weapon.type == 'unarmed') {
@@ -500,27 +523,28 @@ var Events = {
 
 	enemyAttack: function() {
 		// Events.togglePause($('#pause'),'auto');
+		if(PAUSE == false){
+			var scene = Events.activeEvent().scenes[Events.activeScene];
 
-		var scene = Events.activeEvent().scenes[Events.activeScene];
+			if(!$('#enemy').data('stunned')) {
+				var toHit = scene.hit;
+				toHit *= $SM.hasPerk('evasive') ? 0.8 : 1;
+				var dmg = -1;
+				if(Math.random() <= toHit) {
+					dmg = scene.damage;
+				}
 
-		if(!$('#enemy').data('stunned')) {
-			var toHit = scene.hit;
-			toHit *= $SM.hasPerk('evasive') ? 0.8 : 1;
-			var dmg = -1;
-			if(Math.random() <= toHit) {
-				dmg = scene.damage;
+				var attackFn = scene.ranged ? Events.animateRanged : Events.animateMelee;
+
+				attackFn($('#enemy'), dmg, function() {
+						if($('#wanderer').data('hp') <= 0) {
+							// Failure!
+							clearTimeout(Events._enemyAttackTimer);
+							Events.endEvent();
+							World.die();
+						}
+				});
 			}
-
-			var attackFn = scene.ranged ? Events.animateRanged : Events.animateMelee;
-
-			attackFn($('#enemy'), dmg, function() {
-					if($('#wanderer').data('hp') <= 0) {
-						// Failure!
-						clearTimeout(Events._enemyAttackTimer);
-						Events.endEvent();
-						World.die();
-					}
-			});
 		}
     },
 
