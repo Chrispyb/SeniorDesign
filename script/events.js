@@ -894,6 +894,25 @@ var Events = {
 			}
 			btnsList.push(b);
 		}
+		
+		if(Engine.activeModule == World && Events.activeEvent().title != 'Get the App' && Events.activeEvent().title != 'Share' 
+				&& Events.activeEvent().title != 'Export / Import' && Events.activeEvent().title != 'Restart?' && Events.activeEvent().title != 'Go Hyper?'){
+			var eatMeat = new Button.Button({
+						id: 'meatbtn',
+						text: 'eat meat',
+						click: Events.eatMeat,
+						cost: { 'cured meat': 1 },
+						cooldown: 5
+					}).appendTo(btns);
+					
+			var useMeds = new Button.Button({
+						id: 'medsbtn',
+						text: 'use meds',
+						click: Events.useMeds,
+						cost: { 'medicine': 1 },
+						cooldown: 6
+			}).appendTo(btns);
+		}
 
 		Events.updateButtons();
 		return (btnsList.length == 1) ? btnsList[0] : false;
