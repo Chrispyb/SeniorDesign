@@ -122,10 +122,10 @@ var Events = {
 				Events.createAttackButton(k).appendTo(attackBtns);
 			}
 		}
-		if(numWeapons === 0) {
+		//if(numWeapons === 0) {
 			// No weapons? You can punch stuff!
 			Events.createAttackButton('fists').prependTo(attackBtns);
-		}
+		//}
 		$('<div>').addClass('clear').appendTo(attackBtns);
 
 		var healBtns = $('<div>').appendTo(btns).attr('id','healButtons');
