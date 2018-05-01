@@ -424,6 +424,41 @@ var Space = {
 								$('<center>')
 									.addClass('centerCont')
 									.appendTo('body');
+									
+									if (Score.calculateScore()>1000000){
+                                    $('<span>')
+                                    .addClass('endGame')
+                                    .text(_('Excellent Rating Based On Score! Score!'))
+                                    .appendTo('.centerCont')
+                                    .animate({opacity:1},1500);
+                                $('<br />')
+                                    .appendTo('.centerCont');
+                                    
+                                    
+                                }
+                                else if (Score.calculateScore()<1000000 && Score.calculateScore()>500000){
+                                    $('<span>')
+                                    .addClass('endGame')
+                                    .text(_('Very Good Rating Based On Score!'))
+                                    .appendTo('.centerCont')
+                                    .animate({opacity:1},1500);
+                                $('<br />')
+                                    .appendTo('.centerCont');
+                                    
+                                    
+                                }
+                                else if (Score.calculateScore()<500000){
+                                    $('<span>')
+                                    .addClass('endGame')
+                                    .text(_('Average Rating Based On Score! Score!'))
+                                    .appendTo('.centerCont')
+                                    .animate({opacity:1},1500);
+                                $('<br />')
+                                    .appendTo('.centerCont');
+                                    
+                                    
+                                }
+									
 								$('<span>')
 									.addClass('endGame')
 									.text(_('score for this game: {0}', Score.calculateScore()))
